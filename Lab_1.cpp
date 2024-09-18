@@ -123,7 +123,7 @@ int displayMenu() {
 void displayEmployee(Employee);
 
 // function to add employee by ID
-void addEmployee(vector<Employee>& employees) {
+void addEmployee(vector<Employee>& employees, int* highestID) {
     string name;
     int id;
     string department;
@@ -152,17 +152,20 @@ void addEmployee(vector<Employee>& employees) {
     cout << "Enter New Employee's Position: ";
     getline(cin, position);
     
-    //enter employee at index = id; resizing the vector to fit the new highest index
+    // enter employee at index = id; resizing the vector to fit the new highest index
     if (id >= employees.size()) {
         employees.resize(id + 1);
+        // track highest id value
+        *highestID = id;
     }
     employees[id] = (Employee(name, id, department, position));
     cout << "\nEmployee Added.\n\n";
 }
 
 // function to delete employee by ID
-void deleteEmployee(vector<Employee>& employees) {
+void deleteEmployee(vector<Employee>& employees, int* highestID) {
     int remove;
+    int hid = *highestID;
     cout << "Enter Employee ID for employee deletion: ";
     cin >> remove;
     cout << endl;
@@ -173,6 +176,15 @@ void deleteEmployee(vector<Employee>& employees) {
     else {
         employees[remove] = Employee();
         cout << "Employee Deleted.\n\n";
+        // track highest ID value and delete empty objects at end of vector
+        if (remove == hid) {
+            hid = remove;
+            while (hid == 0) {
+                employees.erase(employees.begin() + hid);
+                hid--;
+            }
+            *highestID = hid;
+        }
     }
 }
 
@@ -205,7 +217,10 @@ int main()
     employees[1] = Albert;
     employees[2] = John;
 
-    //Loops the menu interface until 
+    // track the highest value ID and use this data to trim/delete placeholder objects in the vector
+    int highestID = 0;
+
+    // Loops the menu interface until 
     int c = 0;
     while (c != 4) {
         c = displayMenu();
@@ -216,11 +231,11 @@ int main()
             break;
         // Add employee
         case 2:
-            addEmployee(employees);
+            addEmployee(employees, &highestID);
             break;
         // delete employee
         case 3:
-            deleteEmployee(employees);
+            deleteEmployee(employees, &highestID);
             break;
         //exit program <-> exit while loop
         case 4:
